@@ -54,35 +54,45 @@ default_ref_db = os.path.join(matam_db_dir, 'SILVA_128_SSURef_NR95')
 
 # Get all dependencies bin
 matam_script_dir = os.path.join(matam_root_dir, 'scripts')
-clean_name_bin = os.path.join(matam_script_dir, 'fasta_clean_name.py')
-filter_sam_cov_bin = os.path.join(matam_script_dir, 'filter_sam_by_coverage.py')
-filter_score_bin = os.path.join(matam_script_dir, 'filter_score_multialign.py')
-compute_lca_bin = os.path.join(matam_script_dir, 'compute_lca_from_tab.py')
-compute_compressed_graph_stats_bin = os.path.join(matam_script_dir, 'compute_compressed_graph_stats.py')
-sga_assemble_bin = os.path.join(matam_script_dir, 'sga_assemble.py')
-remove_redundant_bin = os.path.join(matam_script_dir, 'remove_redundant_sequences.py')
-fastq_name_filter_bin = os.path.join(matam_script_dir, 'fastq_name_filter.py')
-evaluate_assembly_bin = os.path.join(matam_script_dir, 'evaluate_assembly.py')
-get_best_matches_bin = os.path.join(matam_script_dir, 'get_best_matches_from_blast.py')
-gener_scaff_blast_bin = os.path.join(matam_script_dir, 'generate_scaffolding_blast.py')
-filter_sam_blast_bin = os.path.join(matam_script_dir, 'filter_sam_based_on_blast.py')
-compute_contigs_compatibility_bin = os.path.join(matam_script_dir, 'compute_contigs_compatibility.py')
-scaffold_contigs_bin = os.path.join(matam_script_dir, 'scaffold_contigs.py')
-fasta_length_filter_bin = os.path.join(matam_script_dir, 'fasta_length_filter.py')
+clean_name_bin = Binary.assert_which('fasta_clean_name.py')
+filter_sam_cov_bin = Binary.assert_which('filter_sam_by_coverage.py')
+filter_score_bin = Binary.assert_which('filter_score_multialign.py')
+compute_lca_bin = Binary.assert_which('compute_lca_from_tab.py')
+compute_compressed_graph_stats_bin = Binary.assert_which('compute_compressed_graph_stats.py')
+sga_assemble_bin = Binary.assert_which('sga_assemble.py')
+remove_redundant_bin = Binary.assert_which('remove_redundant_sequences.py')
+fastq_name_filter_bin = Binary.assert_which('fastq_name_filter.py')
+evaluate_assembly_bin = Binary.assert_which('evaluate_assembly.py')
+get_best_matches_bin = Binary.assert_which('get_best_matches_from_blast.py')
+gener_scaff_blast_bin = Binary.assert_which('generate_scaffolding_blast.py')
+filter_sam_blast_bin = Binary.assert_which('filter_sam_based_on_blast.py')
+compute_contigs_compatibility_bin = Binary.assert_which('compute_contigs_compatibility.py')
+scaffold_contigs_bin = Binary.assert_which('scaffold_contigs.py')
+fasta_length_filter_bin = Binary.assert_which('fasta_length_filter.py')
 
 sortmerna_bin_dir = os.path.join(matam_root_dir, 'sortmerna')
 sortmerna_bin = os.path.join(sortmerna_bin_dir, 'sortmerna')
-indexdb_bin = os.path.join(sortmerna_bin_dir, 'indexdb_rna')
+indexdb_bin = Binary.assert_which('indexdb_rna')
 
 ovgraphbuild_bin_dir = os.path.join(matam_root_dir, 'ovgraphbuild', 'bin')
-ovgraphbuild_bin = os.path.join(ovgraphbuild_bin_dir, 'ovgraphbuild')
+ovgraphbuild_bin = Binary.assert_which('ovgraphbuild')
 
 componentsearch_bin_dir = os.path.join(matam_root_dir, 'componentsearch')
-componentsearch_bin = os.path.join(componentsearch_bin_dir, 'componentsearch')
+componentsearch_bin = Binary.assert_which('componentsearch')
 
 assembler_bin_dir = os.path.join(matam_root_dir, 'sga', 'src', 'SGA')
 assembler_name = 'sga'
-assembler_bin = os.path.join(assembler_bin_dir, assembler_name)
+assembler_bin = Binary.assert_which(assembler_name)
+
+rdp_jar = Binary.which('classifier.jar')
+# the rdp exe name is different between submodule installation and conda installation
+if rdp_jar is not None:
+    java = Binary.assert_which('java')
+    rdp_exe = '{java} -Xmx1g -jar {jar}'.format(java=java, jar=rdp_jar)
+else:
+    rdp_exe = Binary.assert_which('classifier')
+
+krona_bin = Binary.assert_which('ktImportText')
 
 # Define a null file handle
 FNULL = open(os.devnull, 'w')
@@ -1573,12 +1583,9 @@ def main():
     if run_step:
 
         logger.info('=== Abundance calculation ===')
-        idx_bin = Binary.assert_which('indexdb_rna')
-        map_bin = Binary.assert_which('sortmerna')
-        best_bin = Binary.assert_which('get_best_matches_from_blast.py')
         scaffolds_fasta = large_NR_scaffolds_filepath
         reads = sortme_output_fastx_filepath
-        abundance = get_abundance_by_scaffold(idx_bin, map_bin, best_bin,
+        abundance = get_abundance_by_scaffold(indexdb_bin, sortmerna_bin, get_best_matches_bin,
                                               scaffolds_fasta, reads,
                                               args.best, args.min_lis, args.evalue,
                                               args.max_memory, args.cpu,
@@ -1605,17 +1612,8 @@ def main():
         # taxonomic assignment with rdp
 
         logger.info('=== Taxonomic assignment ===')
-        rdp_jar = Binary.which('classifier.jar')
 
         rdp_classification_filepath =  '%s.rdp.tab' % os.path.splitext(fasta_with_abundance_filepath)[0]
-
-        # the rdp exe name is different between submodule installation and conda installation
-        if rdp_jar is not None:
-            java = Binary.assert_which('java')
-            rdp_exe = '{java} -Xmx1g -jar {jar}'.format(java=java, jar=rdp_jar)
-        else:
-            rdp_exe = Binary.assert_which('classifier')
-
         run_rdp_classifier(rdp_exe, fasta_with_abundance_filepath,
                            rdp_classification_filepath, gene=args.training_model)
 
@@ -1631,7 +1629,6 @@ def main():
         krona_text_filepath = '%s.krona.tab' % os.path.splitext(rdp_classification_filepath)[0]
         rdp_file_to_krona_text_file(rdp_classification_filepath, krona_text_filepath, abundance=abundance)
 
-        krona_bin = Binary.assert_which('ktImportText')
         krona_html_filepath =  '%s.html' % os.path.splitext(krona_text_filepath)[0]
         make_krona_plot(krona_bin, krona_text_filepath, krona_html_filepath)
 

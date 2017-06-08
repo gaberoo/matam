@@ -8,6 +8,7 @@ import subprocess
 import time
 import logging
 
+from binary_utils import Binary
 
 # Create logger
 logger = logging.getLogger(__name__)
@@ -15,25 +16,17 @@ logger = logging.getLogger(__name__)
 # Get program filename
 program_filename = os.path.basename(sys.argv[0])
 
-# Get MATAM root dir absolute path
 matam_db_prepro_bin = os.path.realpath(sys.argv[0])
-matam_bin_dir = os.path.dirname(matam_db_prepro_bin)
-matam_root_dir = os.path.dirname(matam_bin_dir)
 
 # Get all dependencies bin
-matam_script_dir = os.path.join(matam_root_dir, 'scripts')
-extract_taxo_bin = os.path.join(matam_script_dir, 'extract_taxo_from_fasta.py')
-replace_Ns_bin = os.path.join(matam_script_dir, 'replace_Ns_by_As.py')
-sort_fasta_bin = os.path.join(matam_script_dir, 'sort_fasta_by_length.py')
-fasta_length_filter_bin = os.path.join(matam_script_dir, 'fasta_length_filter.py')
-fasta_name_filter_bin = os.path.join(matam_script_dir, 'fasta_name_filter.py')
-clean_name_bin = os.path.join(matam_script_dir, 'fasta_clean_name.py')
-
-sortmerna_bin_dir = os.path.join(matam_root_dir, 'sortmerna')
-indexdb_bin = os.path.join(sortmerna_bin_dir, 'indexdb_rna')
-
-vsearch_bin_dir = os.path.join(matam_root_dir, 'vsearch/bin')
-vsearch_bin = os.path.join(vsearch_bin_dir, 'vsearch')
+extract_taxo_bin = Binary.assert_which('extract_taxo_from_fasta.py')
+replace_Ns_bin = Binary.assert_which('replace_Ns_by_As.py')
+sort_fasta_bin = Binary.assert_which('sort_fasta_by_length.py')
+fasta_length_filter_bin = Binary.assert_which('fasta_length_filter.py')
+fasta_name_filter_bin = Binary.assert_which('fasta_name_filter.py')
+clean_name_bin = Binary.assert_which('fasta_clean_name.py')
+indexdb_bin = Binary.assert_which('indexdb_rna')
+vsearch_bin = Binary.assert_which('vsearch')
 
 # Define a null file handle
 FNULL = open(os.devnull, 'w')

@@ -8,6 +8,8 @@ import subprocess
 import time
 import logging
 
+from scripts.binary_utils import Binary
+
 # Create logger
 logger = logging.getLogger(__name__)
 
@@ -20,7 +22,7 @@ program_name, program_extension = os.path.splitext(program_filename)
 matam_root_dirpath = program_dirpath
 matam_db_dirpath = os.path.join(matam_root_dirpath, 'db')
 matam_scripts_dirpath = os.path.join(matam_root_dirpath, 'scripts')
-index_ref_db_bin = os.path.join(matam_scripts_dirpath, 'index_ref_db.py')
+index_ref_db_bin = Binary.assert_which('index_ref_db.py')
 
 # Set default ref db name
 default_ref_db_basename = 'SILVA_128_SSURef_NR95'
