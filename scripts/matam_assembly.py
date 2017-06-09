@@ -71,14 +71,9 @@ scaffold_contigs_bin = Binary.assert_which('scaffold_contigs.py')
 fasta_length_filter_bin = Binary.assert_which('fasta_length_filter.py')
 sortmerna_bin = Binary.assert_which('sortmerna')
 indexdb_bin = Binary.assert_which('indexdb_rna')
-
-ovgraphbuild_bin_dir = os.path.join(matam_root_dir, 'ovgraphbuild', 'bin')
 ovgraphbuild_bin = Binary.assert_which('ovgraphbuild')
-
-componentsearch_bin_dir = os.path.join(matam_root_dir, 'componentsearch')
 componentsearch_bin = Binary.assert_which('componentsearch')
 
-assembler_bin_dir = os.path.join(matam_root_dir, 'sga', 'src', 'SGA')
 assembler_name = 'sga'
 assembler_bin = Binary.assert_which(assembler_name)
 
