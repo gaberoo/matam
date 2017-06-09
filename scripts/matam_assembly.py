@@ -69,9 +69,7 @@ filter_sam_blast_bin = Binary.assert_which('filter_sam_based_on_blast.py')
 compute_contigs_compatibility_bin = Binary.assert_which('compute_contigs_compatibility.py')
 scaffold_contigs_bin = Binary.assert_which('scaffold_contigs.py')
 fasta_length_filter_bin = Binary.assert_which('fasta_length_filter.py')
-
-sortmerna_bin_dir = os.path.join(matam_root_dir, 'sortmerna')
-sortmerna_bin = os.path.join(sortmerna_bin_dir, 'sortmerna')
+sortmerna_bin = Binary.assert_which('sortmerna')
 indexdb_bin = Binary.assert_which('indexdb_rna')
 
 ovgraphbuild_bin_dir = os.path.join(matam_root_dir, 'ovgraphbuild', 'bin')
