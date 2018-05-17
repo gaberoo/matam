@@ -28,6 +28,8 @@ sga_dirpath = os.path.join(matam_root_dirpath, 'sga')
 rdptools_dirpath = os.path.join(matam_root_dirpath, 'RDPTools')
 kronatools_dirpath = os.path.join(matam_root_dirpath, 'Krona', 'KronaTools')
 
+gcc = "gcc-8"
+gpp = "g++-8"
 
 def makedir(dirpath):
     """
@@ -195,7 +197,7 @@ normally created by building the program. Default is %(default)s",
         info = '-- Compiling Bamtools lib (for SGA) --'
         bamtools_lib_build_dirpath = os.path.join(
             bamtools_lib_dirpath, 'build')
-        cmd_line = 'CC=gcc CXX=g++ cmake .. && make'
+        cmd_line = 'CC='+gcc+' CXX='+gpp+' cmake .. && make'
         warning = 'A problem might have happened while compiling Bamtools lib. Check log above'
         global_error_code += execute_cmd(cmd_line,
                                          bamtools_lib_build_dirpath,
@@ -218,7 +220,7 @@ normally created by building the program. Default is %(default)s",
         info = '-- Compiling SGA --'
         sga_src_dirpath = os.path.join(sga_dirpath, 'src')
         cmd_line = './autogen.sh && '
-        cmd_line += 'CC=gcc CXX=g++ ./configure --with-bamtools=' + \
+        cmd_line += 'CC='+gcc+' CXX='+gpp+' ./configure --with-bamtools=' + \
             bamtools_lib_dirpath + ' && make'
         warning = 'A problem might have happened while compiling SGA. Check log above'
         global_error_code += execute_cmd(cmd_line,

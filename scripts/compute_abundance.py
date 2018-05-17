@@ -45,7 +45,7 @@ def get_best_matches(best_matches_bin, input_blast_path, out_blast_path, max_mem
 
     outdir = os.path.dirname(out_blast_path)
 
-    sort_bin = 'sort -T ' + outdir + ' -S ' + str(max_mem)
+    sort_bin = 'gsort -T ' + outdir + ' -S ' + str(max_mem)
     sort_bin += 'M --parallel ' + str(cpu)
 
     cmd_line = sort_bin + ' -k1,1V -k12,12nr ' + input_blast_path

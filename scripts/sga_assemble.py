@@ -92,7 +92,7 @@ if __name__ == '__main__':
     # Preprocessing
     preprocess_output = 'preprocess_output.fq'
 
-    cmd_line = args.sga_bin + ' preprocess -v ' + input_filepath
+    cmd_line = args.sga_bin + ' preprocess --phred64 -v "' + input_filepath + '"'
     cmd_line += ' -o ' + preprocess_output
 
     sys.stdout.write('\nCMD: {0}\n\n'.format(cmd_line))

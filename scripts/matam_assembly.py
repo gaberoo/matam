@@ -87,11 +87,12 @@ filter_sam_blast_bin = os.path.join(matam_script_dir, 'filter_sam_based_on_blast
 compute_contigs_compatibility_bin = os.path.join(matam_script_dir, 'compute_contigs_compatibility.py')
 scaffold_contigs_bin = os.path.join(matam_script_dir, 'scaffold_contigs.py')
 fasta_length_filter_bin = os.path.join(matam_script_dir, 'fasta_length_filter.py')
+
 sortmerna_bin = Binary.assert_which('sortmerna')
 indexdb_bin = Binary.assert_which('indexdb_rna')
 ovgraphbuild_bin = Binary.assert_which('ovgraphbuild')
 componentsearch_bin = Binary.assert_which('componentsearch')
-krona_bin = Binary.assert_which('ktImportText')
+krona_bin = Binary.assert_which('/opt/krona/bin/ktImportText')
 
 rdp_jar = Binary.which('classifier.jar')
 
@@ -707,7 +708,7 @@ def main():
     if not args.filter_only:
         print_intro(args)
 
-    sort_bin = 'sort -T ' + workdir + ' -S ' + str(args.max_memory)
+    sort_bin = 'gsort -T ' + workdir + ' -S ' + str(args.max_memory)
     sort_bin += 'M --parallel ' + str(args.cpu)
 
     input_fastx_filepath = args.input_fastx
@@ -1121,28 +1122,26 @@ def main():
 
         # Get read, metanode and component from the components file
         cmd_line = 'tail -n +2 ' + componentsearch_components_csv_filepath
-        cmd_line += ' | sed "s/;/\\t/g" | cut -f2,4,5 | awk "\$3>=0" '
+        cmd_line += " | awk 'BEGIN { FS=\";\" } $5 >= 0 { print $2, $4, $5 }'"
         cmd_line += ' | ' + sort_bin + ' -k1,1 > '
         cmd_line += read_metanode_component_filepath
-
 
         error_code += runner.logged_call(cmd_line, verbose=args.verbose)
 
         # Join sam file with ref taxo on ref name, and join it to the
         # component-node file on read name.
         # Output is (read, metanode, component, taxo) file
-        cmd_line = 'cat ' + sam_filt_filepath + ' | cut -f1,3 | ' + sort_bin + ' -k2,2'
-        cmd_line += ' | join -12 -21 - ' + complete_ref_db_taxo_filepath
-        cmd_line += ' | ' + sort_bin + ' -k2,2 | awk "{print \$2,\$3}" | sed "s/ /\\t/g" '
-        cmd_line += ' | join -11 -21 ' + read_metanode_component_filepath
-        cmd_line += ' - | sed "s/ /\\t/g" > '
-        cmd_line += complete_taxo_filepath
-
+        cmd_line = "cut -f 1,3 " + sam_filt_filepath + " | " + sort_bin + " -k2,2"
+        cmd_line += " | join -12 -21 - " + complete_ref_db_taxo_filepath
+        cmd_line += " | " + sort_bin + " -k2,2 | awk '{ print $2, $3 }'"
+        cmd_line += " | join -11 -21 " + read_metanode_component_filepath + ' -'
+        #cmd_line += " | sed 's/ /\t/g' > "
+        cmd_line += " > " + complete_taxo_filepath
 
         error_code += runner.logged_call(cmd_line, verbose=args.verbose)
 
         # Compute LCA at component level using quorum threshold
-        cmd_line = 'cat ' + complete_taxo_filepath + ' | ' + sort_bin + ' -k3,3 -k1,1 | '
+        cmd_line = sort_bin + ' -k3,3 -k1,1 ' + complete_taxo_filepath + ' | '
         cmd_line += compute_lca_bin + ' -t 4 -f 3 -g 1 -m ' + str(args.quorum)
         cmd_line += ' -o ' + components_lca_filepath
 

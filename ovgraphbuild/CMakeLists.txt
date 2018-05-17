@@ -22,7 +22,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall -Wno-long-long -pedantic -Wno-v
 
 add_executable (ovgraphbuild ${SOURCE_FILES})
 
-find_library (LIBRT_LIB NAMES rt librt)
+#find_library (LIBRT_LIB NAMES rt librt)
 find_library (PTHREAD_LIB NAMES pthread)
 
 target_link_libraries (ovgraphbuild ${LIBRT_LIB} ${PTHREAD_LIB})
